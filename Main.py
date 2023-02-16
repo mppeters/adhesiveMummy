@@ -1,6 +1,10 @@
 import pygame
 from pygame.locals import *
 
+# addition function to demonstrate Tests
+def add(x,y):
+    return x + y
+
 # Initialize Pygame
 pygame.init()
 
