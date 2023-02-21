@@ -8,6 +8,8 @@ def add(x,y):
 # Initialize Pygame
 pygame.init()
 
+clock = pygame.time.Clock()
+
 # Set the size of the window
 size = (800, 800)
 
@@ -270,6 +272,7 @@ running = True
 
 # game loop
 while running:
+    clock.tick(120)
     screen.blit(bg_img, (0, 0))
 
     world.draw()
