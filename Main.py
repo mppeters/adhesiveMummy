@@ -18,32 +18,42 @@ screen = pygame.display.set_mode((800, 800))
 pygame.display.set_caption("Adhesive Mummy")
 
 # load in images
-bg_img = pygame.image.load('background.png')
+bg_img = pygame.image.load('pixelBG.jpg')
 
 # set the tile sizes for each game tile
 tile_size = 25
 
-# animation sprites for player
-player_walk_left = [pygame.transform.scale(pygame.image.load('player-sprites/PlayerL1.png'), (25, 50)),
-                    pygame.transform.scale(pygame.image.load('player-sprites/PlayerL2.png'), (25, 50)),
-                    pygame.transform.scale(pygame.image.load('player-sprites/PlayerL3.png'), (25, 50)),
-                    pygame.transform.scale(pygame.image.load('player-sprites/PlayerL4.png'), (25, 50)),
-                    pygame.transform.scale(pygame.image.load('player-sprites/PlayerL5.png'), (25, 50)),
-                    pygame.transform.scale(pygame.image.load('player-sprites/PlayerL6.png'), (25, 50))]
+class CameraGroup(pygame.sprite.Group):
+    def __init__(self):
+        super().__init__()
+        self.display_surface = pygame.display.get_surface()
 
-player_walk_right = [
-    pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL1.png'), (25, 50)), True,
-                          False),
-    pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL2.png'), (25, 50)), True,
-                          False),
-    pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL3.png'), (25, 50)), True,
-                          False),
-    pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL4.png'), (25, 50)), True,
-                          False),
-    pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL5.png'), (25, 50)), True,
-                          False),
-    pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL6.png'), (25, 50)), True,
-                          False)]
+        # camera offset
+        self.offset = pygame.math.Vector2() # adjust for offset
+        self.half_w = self.display_surface.get_size()[0] // 2
+        self.half_h = self.display_surface.get_size()[1] // 2
+
+        # ground
+        self.ground_surf = pygame.image.load('pixelBG.jpg').convert_alpha() # CURRENT IMG IS PLACEHOLDER FOR WORLD
+        self.ground_rect = self.ground_surf.get_rect(topleft=(-350, 50))
+
+    def center_target_camera(self, target):
+        self.offset.x = target.rect.centerx - self.half_w
+        self.offset.y = target.rect.centery - self.half_h
+
+    def custom_draw(self, player):
+
+        self.center_target_camera(player)
+
+        # ground
+        ground_offset = self.ground_rect.topleft - self.offset
+        self.display_surface.blit(self.ground_surf, ground_offset)
+
+        # active elements
+        for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
+            offset_pos = sprite.rect.topleft - self.offset
+            self.display_surface.blit(sprite.image,offset_pos)
+
 
 
 # player class
@@ -52,16 +62,40 @@ player_walk_right = [
 class player():
     def __init__(self, x, y):
         self.img = pygame.image.load('player-sprites/player.png')
-        self.image = pygame.transform.scale(self.img, (25, 50))
+        self.image = pygame.transform.scale(self.img, (50, 100))
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
         self.width = self.image.get_width()
         self.height = self.image.get_height()
         self.vel_y = 0
+        self.vel_x = 0
         self.jumped = False
         self.frames_rendered = 0
         self.walkingLeft = False
+        self.last_update_time = 0
+        self.current_frame = 0
+        # animation sprites for player
+        self.player_walk_left = [pygame.transform.scale(pygame.image.load('player-sprites/PlayerL1.png'), (50, 100)),
+                            pygame.transform.scale(pygame.image.load('player-sprites/PlayerL2.png'), (50, 100)),
+                            pygame.transform.scale(pygame.image.load('player-sprites/PlayerL3.png'), (50, 100)),
+                            pygame.transform.scale(pygame.image.load('player-sprites/PlayerL4.png'), (50, 100)),
+                            pygame.transform.scale(pygame.image.load('player-sprites/PlayerL5.png'), (50, 100)),
+                            pygame.transform.scale(pygame.image.load('player-sprites/PlayerL6.png'), (50, 100))]
+
+        self.player_walk_right = [
+            pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL1.png'), (50, 100)), True,
+                                False),
+            pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL2.png'), (50, 100)), True,
+                                False),
+            pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL3.png'), (50, 100)), True,
+                                False),
+            pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL4.png'), (50, 100)), True,
+                                False),
+            pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL5.png'), (50, 100)), True,
+                                False),
+            pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL6.png'), (50, 100)), True,
+                                False)]
 
     # updates the player data for movement and
 
@@ -105,47 +139,29 @@ class player():
                     dy = tile[1].top - self.rect.bottom
                     self.vel_y = 0
 
-        # player animation ( 1 step per second ) ( if running in 60fps... )
+        # player animation
+
+        now = pygame.time.get_ticks()
+        elapsed_time = now - self.last_update_time
+
+        # update the animation frame based on the elapsed time
         if dx < 0:  # walking left
-            self.walkingLeft = True
-            if 0 <= self.frames_rendered <= 60:
-                self.image = player_walk_left[0]
-            elif 61 <= self.frames_rendered <= 120:
-                self.image = player_walk_left[1]
-            elif 121 <= self.frames_rendered <= 180:
-                self.image = player_walk_left[2]
-            elif 181 <= self.frames_rendered <= 240:
-                self.image = player_walk_left[3]
-            elif 241 <= self.frames_rendered <= 320:
-                self.image = player_walk_left[4]
-            elif 321 <= self.frames_rendered <= 380:
-                self.image = player_walk_left[5]
-                self.frames_rendered = 0  # reset after last step
+            self.current_frame = (self.current_frame + elapsed_time // 10) % len(self.player_walk_left)
+            self.image = self.player_walk_left[self.current_frame]
         elif dx > 0:  # walking right
-            self.walkingLeft = False
-            if 0 <= self.frames_rendered <= 60:
-                self.image = player_walk_right[0]
-            elif 61 <= self.frames_rendered <= 120:
-                self.image = player_walk_right[1]
-            elif 121 <= self.frames_rendered <= 180:
-                self.image = player_walk_right[2]
-            elif 181 <= self.frames_rendered <= 240:
-                self.image = player_walk_right[3]
-            elif 241 <= self.frames_rendered <= 320:
-                self.image = player_walk_right[4]
-            elif 321 <= self.frames_rendered <= 380:
-                self.image = player_walk_right[5]
-                self.frames_rendered = 0  # reset after last step
-        else:  # stationary
-            if self.walkingLeft:
-                self.image = pygame.transform.scale(self.img, (25, 50))
-            else:
-                self.image = pygame.transform.flip(pygame.transform.scale(self.img, (25, 50)), True, False)
-                self.frames_rendered = 0
+            self.current_frame = (self.current_frame + elapsed_time // 10) % len(self.player_walk_right)
+            self.image = self.player_walk_right[self.current_frame]
 
         # player movement
         self.rect.x += dx
         self.rect.y += dy
+
+        # reset the animation frame if the character stops moving
+        if dx == 0:
+            if self.current_frame != 0:
+                self.current_frame = 0
+                self.image = self.image
+                
 
         # test code to make sure the movement works while there is no collision effects
         if self.rect.bottom > 800:
@@ -154,6 +170,57 @@ class player():
 
         screen.blit(self.image, self.rect)
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
+        self.last_update_time = now
+
+class hyena():
+    def __init__(self, x, y):
+        img = pygame.image.load('hyena.png')
+        self.image = pygame.transform.scale(img, (100, 50))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.vel_y = 0
+        self.jumped = False
+        self.moving_left = True
+        self.posX = 0
+        self.posY = 0
+        
+    # updates hyena data for movement
+    def update(self):
+
+        # add gravity to hyena
+        self.vel_y += 0.05
+        if self.vel_y > 10:
+            self.vel_y = 10
+        self.posY += self.vel_y
+
+        # hyena movement (paces back and forth)
+        if self.posX <= -25:  # hits left boundary
+            self.image = pygame.transform.flip(pygame.image.load('hyena.png'), True, False)
+            self.posX += self.posX
+        elif self.posX >= 25:  # hits right boundary
+            self.image = pygame.transform.flip(pygame.image.load('hyena.png'), True, False)
+            self.posX -= self.posX
+        elif 25 > self.posX > -25 and self.moving_left == True: # moving left
+            self.posX -= self.posX
+        else: # moving right
+            self.posX =+ self.posY
+        # jump mechanic (if player is above)
+        if self.rect.x + 10 <= player.rect.x <= self.rect.x - 10 and self.rect.y <= player.rect.y and not self.jumped:
+            # if within 10 units of player and relatively below
+            self.vel_y = -5
+            self.jumped = True
+        else :
+            self.jumped = False
+
+        self.rect.x += self.posX
+        self.rect.y += self.posY
+
+        # test code to make sure the movement works while there are no collision effects
+        if self.rect.bottom > 800:
+            self.rect.bottom = 800
+            self.posY = 0
+        screen.blit(self.image, self.rect)
 
 
 # class to create the world
@@ -270,10 +337,15 @@ player = player(100, 640)
 world = world(world_data)
 running = True
 
+# setup camera
+camera_group = CameraGroup()
+
 # game loop
 while running:
     clock.tick(120)
-    screen.blit(bg_img, (0, 0))
+
+    camera_group.update()
+    camera_group.custom_draw(player)
 
     world.draw()
     player.update()
