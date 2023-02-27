@@ -19,6 +19,9 @@ pygame.display.set_caption("Adhesive Mummy")
 
 # load in images
 bg_img = pygame.image.load('background.png')
+restart_img = pygame.image.load('restart_image.png')
+start_game = pygame.image.load('start.png')
+exit_img = pygame.image.load('exit.png')
 
 # set the tile sizes for each game tile
 tile_size = 25
@@ -46,24 +49,35 @@ player_walk_right = [
                           False)]
 
 
+class Button():
+    def __init__(self, x, y, image):
+        self.image = image
+        self.rect = self.image.get_rect()
+        self.rect.x  = x
+        self.rect.y= y
+        self.click = False
+    def draw(self):
+        action = False
+        #mouse pos
+        pos = pygame.mouse.get_pos()
+
+        #check if mouse over button and if clicked
+        if self.rect.collidepoint(pos):
+            if pygame.mouse.get_pressed()[0] == 1 and self.click == False:
+                self.click = True
+                action = True
+        if pygame.mouse.get_pressed()[0] == 0:
+            self.click = False        
+
+        screen.blit(self.image, self.rect)
+
+        return action
+
+ 
 # player class
-
-
 class player():
     def __init__(self, x, y):
-        self.img = pygame.image.load('player-sprites/player.png')
-        self.image = pygame.transform.scale(self.img, (25, 50))
-        self.rect = self.image.get_rect()
-        self.rect.x = x
-        self.rect.y = y
-        self.width = self.image.get_width()
-        self.height = self.image.get_height()
-        self.vel_y = 0
-        self.jumped = False
-        self.frames_rendered = 0
-        self.walkingLeft = False
-
-    # updates the player data for movement and
+        self.reset(x,y)
 
     def update(self):
         # change in x and change in y variables
@@ -72,7 +86,7 @@ class player():
 
         # checking to see if a key is pressed and moving in that direction if so
         key = pygame.key.get_pressed()
-        if key[pygame.K_SPACE] and self.jumped == False:
+        if key[pygame.K_SPACE] and self.jumped == False and self.in_air == False:
             self.vel_y = -3
             self.jumped = True
         if key[pygame.K_SPACE] == False:
@@ -89,6 +103,7 @@ class player():
         dy += self.vel_y
 
         # check for player collision
+        self.in_air = True
         for tile in world.tile_list:
             # check for collision in X-direction
             if tile[1].colliderect(self.rect.x + dx, self.rect.y + dy, self.width, self.height):
@@ -104,6 +119,7 @@ class player():
                 elif self.vel_y >= 0:
                     dy = tile[1].top - self.rect.bottom
                     self.vel_y = 0
+                    self.in_air = False
 
         # player animation ( 1 step per second ) ( if running in 60fps... )
         if dx < 0:  # walking left
@@ -154,6 +170,20 @@ class player():
 
         screen.blit(self.image, self.rect)
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
+
+    def reset(self,x,y):
+        self.img = pygame.image.load('player-sprites/player.png')
+        self.image = pygame.transform.scale(self.img, (25, 50))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.width = self.image.get_width()
+        self.height = self.image.get_height()
+        self.vel_y = 0
+        self.jumped = False
+        self.frames_rendered = 0
+        self.walkingLeft = False
+        self.in_air = True
 
 
 # class to create the world
@@ -265,17 +295,23 @@ world_data = [
 ]
 
 # player instance
-player = player(100, 640)
+player = player(100, 660)
 # creating a world instance with the world data table
 world = world(world_data)
+
+#buttons
+restart_button = Button(400 - 50, 500, restart_img)
 running = True
 
 # game loop
 while running:
+
     clock.tick(120)
     screen.blit(bg_img, (0, 0))
-
+    
     world.draw()
+    #if restart_button.draw():
+        #player.reset(100, 660)
     player.update()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
