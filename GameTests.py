@@ -1,5 +1,9 @@
 import unittest
-import Main
+import pygame
+import Controller.py
+import Game.py
+from pynput.keyboard import Key, Controller
+import time
 
 # """
 # Here are all the possible methods we can use for our tests:

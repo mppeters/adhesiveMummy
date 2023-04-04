@@ -1,27 +1,7 @@
 import pygame
-from pygame.locals import *
 
-# addition function to demonstrate Tests
-def add(x,y):
-    return x + y
-
-# Initialize Pygame
-pygame.init()
-
-clock = pygame.time.Clock()
-
-# Set the size of the window
-size = (800, 800)
-
-# Create a window with the specified size and title
-screen = pygame.display.set_mode((800, 800))
-pygame.display.set_caption("Adhesive Mummy")
-
-# load in images
-bg_img = pygame.image.load('pixelBG.jpg')
-
-# set the tile sizes for each game tile
 tile_size = 25
+screen = pygame.display.set_mode((800, 800))
 
 class CameraGroup(pygame.sprite.Group):
     def __init__(self):
@@ -53,8 +33,6 @@ class CameraGroup(pygame.sprite.Group):
         for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image,offset_pos)
-
-
 
 # player class
 
@@ -222,11 +200,11 @@ class hyena():
             self.posY = 0
         screen.blit(self.image, self.rect)
 
-
 # class to create the world
 
 
 class world():
+    tile_list = []
     def __init__(self, data):
         self.tile_list = []
         dirt_img = pygame.image.load('dirt.png')
@@ -261,7 +239,6 @@ class world():
         for tile in self.tile_list:
             screen.blit(tile[0], tile[1])
             pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
-
 
 # world data board to hold world data 1 means dirt 0 means air
 world_data = [
@@ -330,27 +307,3 @@ world_data = [
     [1, 1, 2, 2, 2, 2, 2, 2, 2, 1, 1, 1, 1, 1, 1,
      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]
 ]
-
-# player instance
-player = player(100, 640)
-# creating a world instance with the world data table
-world = world(world_data)
-running = True
-
-# setup camera
-camera_group = CameraGroup()
-
-# game loop
-while running:
-    clock.tick(120)
-
-    camera_group.update()
-    camera_group.custom_draw(player)
-
-    world.draw()
-    player.update()
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
-    pygame.display.update()
-pygame.quit()
