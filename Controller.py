@@ -2,9 +2,6 @@ import pygame
 from pygame.locals import *
 import Game
 
-# addition function to demonstrate Tests
-def add(x,y):
-    return x + y
 
 # Initialize Pygame
 pygame.init()
@@ -26,8 +23,9 @@ tile_size = 25
 
 # player instance
 player = Game.player(100, 640)
+player.createWorld(Game.world_data)
 # creating a world instance with the world data table
-world = Game.world(Game.world_data)
+#world = Game.world(Game.world_data)
 running = True
 
 # setup camera
@@ -40,7 +38,7 @@ while running:
     camera_group.update()
     camera_group.custom_draw(player)
 
-    world.draw()
+    #world.draw()
     player.update()
     for event in pygame.event.get():
         if event.type == pygame.QUIT:

@@ -49,10 +49,12 @@ class player():
         self.vel_y = 0
         self.vel_x = 0
         self.jumped = False
+        self.in_air = False
         self.frames_rendered = 0
         self.walkingLeft = False
         self.last_update_time = 0
         self.current_frame = 0
+        self.tile_list=[]
         # animation sprites for player
         self.player_walk_left = [pygame.transform.scale(pygame.image.load('player-sprites/PlayerL1.png'), (50, 100)),
                             pygame.transform.scale(pygame.image.load('player-sprites/PlayerL2.png'), (50, 100)),
@@ -75,8 +77,33 @@ class player():
             pygame.transform.flip(pygame.transform.scale(pygame.image.load('player-sprites/PlayerL6.png'), (50, 100)), True,
                                 False)]
 
-    # updates the player data for movement and
-
+    def createWorld(self,data):
+        dirt_img = pygame.image.load('dirt.png')
+        grass_img = pygame.image.load('grass.png')
+        # creating each tile for the game space and assigning it the correct data based on the input data
+        row_count = 0
+        for row in data:
+            col_count = 0
+            for tile in row:
+                if tile == 1:
+                    img = pygame.transform.scale(
+                        dirt_img, (tile_size, tile_size))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_count * tile_size
+                    img_rect.y = row_count * tile_size
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
+                if tile == 2:
+                    img = pygame.transform.scale(
+                        grass_img, (tile_size, tile_size))
+                    img_rect = img.get_rect()
+                    img_rect.x = col_count * tile_size
+                    img_rect.y = row_count * tile_size
+                    tile = (img, img_rect)
+                    self.tile_list.append(tile)
+                col_count += 1
+            row_count += 1
+        
     def update(self):
         # change in x and change in y variables
         dx = 0
@@ -84,9 +111,10 @@ class player():
 
         # checking to see if a key is pressed and moving in that direction if so
         key = pygame.key.get_pressed()
-        if key[pygame.K_SPACE] and self.jumped == False:
+        if key[pygame.K_SPACE] and self.jumped == False and self.in_air == False:
             self.vel_y = -3
             self.jumped = True
+            self.in_air = True
         if key[pygame.K_SPACE] == False:
             self.jumped = False
         if key[pygame.K_LEFT]:
@@ -101,7 +129,7 @@ class player():
         dy += self.vel_y
 
         # check for player collision
-        for tile in world.tile_list:
+        for tile in self.tile_list:
             # check for collision in X-direction
             if tile[1].colliderect(self.rect.x + dx, self.rect.y + dy, self.width, self.height):
                 dx = 0
@@ -116,7 +144,7 @@ class player():
                 elif self.vel_y >= 0:
                     dy = tile[1].top - self.rect.bottom
                     self.vel_y = 0
-
+                self.in_air = False
         # player animation
 
         now = pygame.time.get_ticks()
@@ -141,14 +169,12 @@ class player():
                 self.image = self.image
                 
 
-        # test code to make sure the movement works while there is no collision effects
-        if self.rect.bottom > 800:
-            self.rect.bottom = 800
-            dy = 0
-
         screen.blit(self.image, self.rect)
         pygame.draw.rect(screen, (255, 255, 255), self.rect, 2)
         self.last_update_time = now
+        for tile in self.tile_list:
+            screen.blit(tile[0], tile[1])
+            pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
 
 class hyena():
     def __init__(self, x, y):
@@ -203,42 +229,8 @@ class hyena():
 # class to create the world
 
 
-class world():
-    tile_list = []
-    def __init__(self, data):
-        self.tile_list = []
-        dirt_img = pygame.image.load('dirt.png')
-        grass_img = pygame.image.load('grass.png')
-        # creating each tile for the game space and assigning it the correct data based on the input data
-        row_count = 0
-        for row in data:
-            col_count = 0
-            for tile in row:
-                if tile == 1:
-                    img = pygame.transform.scale(
-                        dirt_img, (tile_size, tile_size))
-                    img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                if tile == 2:
-                    img = pygame.transform.scale(
-                        grass_img, (tile_size, tile_size))
-                    img_rect = img.get_rect()
-                    img_rect.x = col_count * tile_size
-                    img_rect.y = row_count * tile_size
-                    tile = (img, img_rect)
-                    self.tile_list.append(tile)
-                col_count += 1
-            row_count += 1
 
-    # drawing the world tiles into the world
-
-    def draw(self):
-        for tile in self.tile_list:
-            screen.blit(tile[0], tile[1])
-            pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
+        
 
 # world data board to hold world data 1 means dirt 0 means air
 world_data = [
