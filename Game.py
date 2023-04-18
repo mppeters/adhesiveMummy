@@ -8,8 +8,6 @@ screen = pygame.display.set_mode((800, 800))
 
 
 class CameraGroup(pygame.sprite.Group):
-    """Camera movement for the background"""
-
     def __init__(self):
         super().__init__()
         self.display_surface = pygame.display.get_surface()
@@ -20,16 +18,18 @@ class CameraGroup(pygame.sprite.Group):
         self.half_h = self.display_surface.get_size()[1] // 2
 
         # ground
+        # CURRENT IMG IS PLACEHOLDER FOR WORLD
+        self.ground_surf = pygame.image.load(
+            'assets/pixelBG.jpg').convert_alpha()
         self.ground_rect = self.ground_surf.get_rect(topleft=(-350, 50))
 
     def center_target_camera(self, target):
-        """Centers camera"""
         self.offset.x = target.rect.centerx - self.half_w
         self.offset.y = target.rect.centery - self.half_h
 
-    def custom_draw(self, person):
-        """Draws the camera location"""
-        self.center_target_camera(person)
+    def custom_draw(self, player):
+
+        self.center_target_camera(player)
 
         # ground
         ground_offset = self.ground_rect.topleft - self.offset
