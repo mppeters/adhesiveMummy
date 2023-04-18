@@ -14,7 +14,7 @@ class CameraGroup(pygame.sprite.Group):
         self.half_h = self.display_surface.get_size()[1] // 2
 
         # ground
-        self.ground_surf = pygame.image.load('pixelBG.jpg').convert_alpha() # CURRENT IMG IS PLACEHOLDER FOR WORLD
+        self.ground_surf = pygame.image.load('assets/pixelBG.jpg').convert_alpha() # CURRENT IMG IS PLACEHOLDER FOR WORLD
         self.ground_rect = self.ground_surf.get_rect(topleft=(-350, 50))
 
     def center_target_camera(self, target):
@@ -78,8 +78,8 @@ class player():
                                 False)]
 
     def createWorld(self,data):
-        dirt_img = pygame.image.load('dirt.png')
-        grass_img = pygame.image.load('grass.png')
+        dirt_img = pygame.image.load('assets/dirt.png')
+        grass_img = pygame.image.load('assets/grass.png')
         # creating each tile for the game space and assigning it the correct data based on the input data
         row_count = 0
         for row in data:
@@ -178,7 +178,7 @@ class player():
 
 class hyena():
     def __init__(self, x, y):
-        img = pygame.image.load('hyena.png')
+        img = pygame.image.load('assets/hyena.png')
         self.image = pygame.transform.scale(img, (100, 50))
         self.rect = self.image.get_rect()
         self.rect.x = x
@@ -200,10 +200,10 @@ class hyena():
 
         # hyena movement (paces back and forth)
         if self.posX <= -25:  # hits left boundary
-            self.image = pygame.transform.flip(pygame.image.load('hyena.png'), True, False)
+            self.image = pygame.transform.flip(pygame.image.load('assets/hyena.png'), True, False)
             self.posX += self.posX
         elif self.posX >= 25:  # hits right boundary
-            self.image = pygame.transform.flip(pygame.image.load('hyena.png'), True, False)
+            self.image = pygame.transform.flip(pygame.image.load('assets/hyena.png'), True, False)
             self.posX -= self.posX
         elif 25 > self.posX > -25 and self.moving_left == True: # moving left
             self.posX -= self.posX
