@@ -1,7 +1,7 @@
 import unittest
 import pygame
 import Controller
-import Game
+import game
 import time
 
 # """
@@ -40,43 +40,49 @@ class testController(unittest.TestCase):
         pygame.init()
         self.assertTrue(True)
 
+
 class testPlayer(unittest.TestCase):
     def test_player(self):
-        player = Game.player(100, 640)
+        player = game.player(100, 640)
         self.assertTrue(True)
 
     def test_playerUpdate(self):
-        player = Game.player(100, 640)
+        player = game.player(100, 640)
         prevX = player.rect.x
         # move player around
         if (pygame.event.get == pygame.QUIT):
             self.assertNotEqual(player.rect.x, prevX)
 
+
 class testHyena(unittest.TestCase):
     def test_hyena(self):
-        hyena = Game.hyena(100, 50)
+        hyena = game.hyena(100, 50)
         self.assertTrue(True)
+
+
 class testWorld(unittest.TestCase):
     def test_world(self):
-        player = Game.player(100, 640)
-        player.createWorld(Game.world_data)
+        player = game.player(100, 640)
+        player.createWorld(game.world_data)
         self.assertTrue(True)
+
 
 class testCamera(unittest.TestCase):
     def test_camera(self):
-        camera_group = Game.CameraGroup()
+        camera_group = game.CameraGroup()
         self.assertTrue(True)
 
     def test_cameraUpdate(self):
-        camera_group = Game.CameraGroup()
+        camera_group = game.CameraGroup()
         camera_group.update()
         self.assertTrue(True)
 
     def test_cameraDraw(self):
-        camera_group = Game.CameraGroup()
-        player = Game.player(100, 640)
+        camera_group = game.CameraGroup()
+        player = game.player(100, 640)
         camera_group.custom_draw(player)
         self.assertTrue(True)
+
 
 if __name__ == '__Controller__':
     unittest.Controller()
