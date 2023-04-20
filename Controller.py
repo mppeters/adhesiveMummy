@@ -19,12 +19,12 @@ def get_font(size):  # Returns Press-Start-2P in the desired size
     return pygame.font.Font("assets/silkscreenFont.ttf", size)
 
 
-def play():
+def play(levelNum):
     """Plays the game"""
     pygame.display.set_caption("Adhesive Mummy")
 
     player = game.Player(100, 640)
-    player.create_world(game.world_levels[0])
+    player.create_world(game.world_levels[levelNum])
 
     camera_group = game.CameraGroup()
     clock = pygame.time.Clock()
@@ -71,6 +71,37 @@ def level_select():
         levelselect_back.change_color(levelselect_mouse_pos)
         levelselect_back.update(screen)
 
+        level1_button = Button(image=pygame.image.load("assets/Level Rect.png"), pos=(200, 300),
+                             text_input="1", font=get_font(60), base_color="#d7fcd4", hovering_color="White")
+        
+        level2_button = Button(image=pygame.image.load("assets/Level Rect.png"), pos=(300, 300),
+                             text_input="2", font=get_font(60), base_color="#d7fcd4", hovering_color="White")
+        
+        level3_button = Button(image=pygame.image.load("assets/Level Rect.png"), pos=(400, 300),
+                             text_input="3", font=get_font(60), base_color="#d7fcd4", hovering_color="White")
+        
+        level4_button = Button(image=pygame.image.load("assets/Level Rect.png"), pos=(500, 300),
+                             text_input="4", font=get_font(60), base_color="#d7fcd4", hovering_color="White")
+        
+        level5_button = Button(image=pygame.image.load("assets/Level Rect.png"), pos=(600, 300),
+                             text_input="5", font=get_font(60), base_color="#d7fcd4", hovering_color="White")
+        
+        level6_button = Button(image=pygame.image.load("assets/Level Rect.png"), pos=(250, 400),
+                             text_input="6", font=get_font(60), base_color="#d7fcd4", hovering_color="White")
+        
+        level7_button = Button(image=pygame.image.load("assets/Level Rect.png"), pos=(350, 400),
+                             text_input="7", font=get_font(60), base_color="#d7fcd4", hovering_color="White")
+        
+        level8_button = Button(image=pygame.image.load("assets/Level Rect.png"), pos=(450, 400),
+                             text_input="8", font=get_font(60), base_color="#d7fcd4", hovering_color="White")
+        
+        level9_button = Button(image=pygame.image.load("assets/Level Rect.png"), pos=(550, 400),
+                             text_input="9", font=get_font(60), base_color="#d7fcd4", hovering_color="White")
+        
+        for button in [level1_button, level2_button, level3_button, level4_button, level5_button, level6_button, level7_button, level8_button, level9_button]:
+            button.change_color(levelselect_mouse_pos)
+            button.update(screen)
+
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -78,6 +109,22 @@ def level_select():
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if levelselect_back.check_for_input(levelselect_mouse_pos):
                     main_menu()
+                if level1_button.check_for_input(levelselect_mouse_pos):
+                    play(0)
+                if level2_button.check_for_input(levelselect_mouse_pos):
+                    play(1)
+                if level3_button.check_for_input(levelselect_mouse_pos):
+                    play(1)
+                if level4_button.check_for_input(levelselect_mouse_pos):
+                    play(1)
+                if level5_button.check_for_input(levelselect_mouse_pos):
+                    play(1)
+                if level6_button.check_for_input(levelselect_mouse_pos):
+                    play(1)
+                if level8_button.check_for_input(levelselect_mouse_pos):
+                    play(1)
+                if level9_button.check_for_input(levelselect_mouse_pos):
+                    play(1)
 
         pygame.display.update()
 
@@ -113,7 +160,7 @@ def main_menu():
                 sys.exit()
             if event.type == pygame.MOUSEBUTTONDOWN:
                 if play_button.check_for_input(menu_mouse_pos):
-                    play()
+                    play(1)
                 if levelselect_button.check_for_input(menu_mouse_pos):
                     level_select()
                 if quit_button.check_for_input(menu_mouse_pos):
