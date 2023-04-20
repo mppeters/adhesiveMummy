@@ -1,11 +1,16 @@
 """Main Game py file"""
 # pylint: disable=line-too-long
 import pygame
+import random
+from time import sleep
 
 door_grp = pygame.sprite.Group()
 TILE_SIZE = 25
 screen = pygame.display.set_mode((800, 800))
 
+def get_font(size):  # Returns Press-Start-2P in the desired size
+    """Gets the font for the menu"""
+    return pygame.font.Font("assets/silkscreenFont.ttf", size)
 
 class CameraGroup(pygame.sprite.Group):
     def __init__(self):
@@ -39,6 +44,39 @@ class CameraGroup(pygame.sprite.Group):
         for sprite in sorted(self.sprites(), key=lambda sprite: sprite.rect.centery):
             offset_pos = sprite.rect.topleft - self.offset
             self.display_surface.blit(sprite.image, offset_pos)
+
+# hyena class
+
+class Hyena():
+    """Hyena Class"""
+
+    def __init__(self, x, y):
+        self.counter = 0
+        self.img = pygame.image.load('assets/hyenaFlipped.png')
+        self.image = pygame.transform.scale(self.img, (75, 50))
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+
+    def update(self):
+
+        # tracking steps
+
+        if self.counter == 20 or self.counter == -20:
+            counter = 0
+        elif self.counter < 0:
+            counter = counter - 1
+        elif self.counter > 0:
+            counter = counter + 1
+        else: # if counter = 0
+            if random.randint(0, 1) == 1:
+                counter = 1
+            else:
+                counter = -1
+
+        self.rect.x = self.rect.x + counter
+
+        screen.blit(self.image, self.rect)
 
 # player class
 
@@ -165,6 +203,20 @@ class Player():
         if pygame.sprite.spritecollide(self, door_grp, False):
             game_over = 1
             if game_over == 1:
+                pygame.display.set_caption("GAME OVER")
+
+                screen.fill("Black")
+
+                GAMEOVER_TEXT = get_font(95).render("Game Over", True, "White")
+                GAMEOVER_TEXT2 = get_font(55).render("exiting game...", True, "wHITE")
+                GAMEOVER_RECT = GAMEOVER_TEXT.get_rect(center=(400,400))
+                GAMEOVER_RECT2 = GAMEOVER_TEXT2.get_rect(center=(400,500))
+                screen.blit(GAMEOVER_TEXT, GAMEOVER_RECT)
+                screen.blit(GAMEOVER_TEXT2, GAMEOVER_RECT2)
+
+                pygame.display.update()
+
+                sleep(2)
                 pygame.quit()
         # player animation
 
@@ -197,9 +249,6 @@ class Player():
             screen.blit(tile[0], tile[1])
             pygame.draw.rect(screen, (255, 255, 255), tile[1], 2)
         door_grp.draw(screen)
-
-# class to create the world
-
 
 # class for the end game door
 class Door(pygame.sprite.Sprite):

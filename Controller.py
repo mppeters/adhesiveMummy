@@ -1,6 +1,7 @@
 """Game Controller"""
 # pylint: disable=line-too-long
 import sys
+from time import sleep
 import pygame
 import game
 from button import Button
@@ -23,6 +24,8 @@ def play(levelNum):
     """Plays the game"""
     pygame.display.set_caption("Adhesive Mummy")
 
+    hyena = game.Hyena(120, 220)
+
     player = game.Player(100, 640)
     player.create_world(game.world_levels[levelNum])
 
@@ -34,9 +37,8 @@ def play(levelNum):
 
         camera_group.update()
         camera_group.custom_draw(player)
-        camera_group.update()
-        camera_group.custom_draw(player)
 
+        hyena.update()
         player.update()
 
         play_mouse_pos = pygame.mouse.get_pos()
